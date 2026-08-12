@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+    compileOnly files('libs/spigot-stub.jar') // local lightweight stubs for compilation only
 }
 
 sourceCompatibility = 1.8
