@@ -105,12 +105,21 @@ public class TrackerPatcher {
         Object tracker = trackerField.get(worldServer);
         if (tracker == null) throw new Exception("WorldServer.tracker is null");
 
-        // find trackedEntities Map field on tracker
+        // find trackedEntities Map field on tracker by inspecting declared Map fields and checking contents
         Field trackedMapField = null;
         for (Field f : tracker.getClass().getDeclaredFields()) {
-            if (Map.class.isAssignableFrom(f.getType())) {
-                trackedMapField = f;
-                break;
+            if (!Map.class.isAssignableFrom(f.getType())) continue;
+            f.setAccessible(true);
+            Object possible = f.get(tracker);
+            if (possible instanceof Map) {
+                Map possibleMap = (Map) possible;
+                // check if values look like EntityTrackerEntry
+                Object sample = null;
+                for (Object v : possibleMap.values()) { sample = v; break; }
+                if (sample != null && sample.getClass().getName().contains("EntityTrackerEntry")) {
+                    trackedMapField = f;
+                    break;
+                }
             }
         }
         if (trackedMapField == null) throw new Exception("trackedEntities Map field not found on EntityTracker");
@@ -121,12 +130,13 @@ public class TrackerPatcher {
         // wrap the map so future puts are intercepted
         if (!patchedMaps.containsKey(tracker)) {
             Map wrapped = new InterceptingMap(tracked, areaClass);
+            // store original map so we can restore it on disable
+            patchedMaps.put(tracker, tracked);
             trackedMapField.set(tracker, wrapped);
-            patchedMaps.put(tracker, trackedMapField);
             if (debug) plugin.getLogger().info("[LingeringDragonBreathFix] replaced trackedEntities map for world " + w.getName());
         }
 
-        // iterate existing entries
+        // iterate existing entries (snapshot to avoid concurrent modification)
         Collection entries = new ArrayList(tracked.values());
         for (Object entry : entries) {
             try {
@@ -231,6 +241,7 @@ public class TrackerPatcher {
         private final boolean isAEC;
 
         FilteredSet(Set delegate, EaglerPlayerDetector detector, boolean isAEC) {
+            // keep a reference to the original set and rely on synchronization of the delegate where necessary
             this.delegate = delegate;
             this.detector = detector;
             this.isAEC = isAEC;
@@ -251,25 +262,25 @@ public class TrackerPatcher {
             return true;
         }
 
-        @Override public int size() { return delegate.size(); }
-        @Override public boolean isEmpty() { return delegate.isEmpty(); }
-        @Override public boolean contains(Object o) { return delegate.contains(o); }
+        @Override public int size() { synchronized (delegate) { return delegate.size(); } }
+        @Override public boolean isEmpty() { synchronized (delegate) { return delegate.isEmpty(); } }
+        @Override public boolean contains(Object o) { synchronized (delegate) { return delegate.contains(o); } }
         @Override public Iterator iterator() { return delegate.iterator(); }
-        @Override public Object[] toArray() { return delegate.toArray(); }
-        @Override public Object[] toArray(Object[] a) { return delegate.toArray(a); }
+        @Override public Object[] toArray() { synchronized (delegate) { return delegate.toArray(); } }
+        @Override public Object[] toArray(Object[] a) { synchronized (delegate) { return delegate.toArray(a); } }
         @Override public boolean add(Object o) {
             if (!shouldAdd(o)) return false;
-            return delegate.add(o);
+            synchronized (delegate) { return delegate.add(o); }
         }
-        @Override public boolean remove(Object o) { return delegate.remove(o); }
-        @Override public boolean containsAll(Collection c) { return delegate.containsAll(c); }
+        @Override public boolean remove(Object o) { synchronized (delegate) { return delegate.remove(o); } }
+        @Override public boolean containsAll(Collection c) { synchronized (delegate) { return delegate.containsAll(c); } }
         @Override public boolean addAll(Collection c) {
             boolean changed = false;
             for (Object o : c) changed |= add(o);
             return changed;
         }
-        @Override public boolean retainAll(Collection c) { return delegate.retainAll(c); }
-        @Override public boolean removeAll(Collection c) { return delegate.removeAll(c); }
-        @Override public void clear() { delegate.clear(); }
+        @Override public boolean retainAll(Collection c) { synchronized (delegate) { return delegate.retainAll(c); } }
+        @Override public boolean removeAll(Collection c) { synchronized (delegate) { return delegate.removeAll(c); } }
+        @Override public void clear() { synchronized (delegate) { delegate.clear(); } }
     }
 }
