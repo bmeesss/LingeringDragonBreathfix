@@ -30,6 +30,6 @@ tasks.withType(JavaCompile) {
 }
 
 jar {
-    from { configurations.compileOnly.collect { it.isDirectory() ? it : zipTree(it) } } // do not embed, but allows running in IDE if desired
     archiveBaseName = 'LingeringDragonBreathFix'
+    // Do not include compileOnly dependencies in the plugin JAR. They are provided by the server.
 }
