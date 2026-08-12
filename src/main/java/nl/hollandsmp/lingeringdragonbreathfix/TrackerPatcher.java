@@ -59,7 +59,7 @@ public class TrackerPatcher {
     }
 
     public void disable() {
-        // try to restore original sets/maps
+        // restore entry fields
         for (Map.Entry<Object, WrappedState> e : patchedEntries.entrySet()) {
             try {
                 WrappedState s = e.getValue();
@@ -70,16 +70,29 @@ public class TrackerPatcher {
                 plugin.getLogger().log(Level.FINE, "[LingeringDragonBreathFix] failed to restore entry set", t);
             }
         }
+
+        // restore tracker maps
         for (Map.Entry<Object, Object> e : patchedMaps.entrySet()) {
+            Object tracker = e.getKey();
+            Object originalMap = e.getValue();
             try {
-                Object tracker = e.getKey();
-                Field mapField = (Field) e.getValue();
-                mapField.setAccessible(true);
-                // no reliable original stored globally; best-effort only
+                for (Field f : tracker.getClass().getDeclaredFields()) {
+                    if (Map.class.isAssignableFrom(f.getType())) {
+                        f.setAccessible(true);
+                        Object curr = f.get(tracker);
+                        if (curr != originalMap) {
+                            f.set(tracker, originalMap);
+                        }
+                        break;
+                    }
+                }
             } catch (Throwable t) {
                 plugin.getLogger().log(Level.FINE, "[LingeringDragonBreathFix] failed to restore map", t);
             }
         }
+
+        patchedEntries.clear();
+        patchedMaps.clear();
     }
 
     private void patchWorld(World w, Class<?> areaClass) throws Exception {
