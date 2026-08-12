@@ -1,0 +1,6 @@
+name: LingeringDragonBreathFix
+main: nl.hollandsmp.lingeringdragonbreathfix.LingeringDragonBreathFix
+version: '1.0.0'
+api-version: '1.12'
+author: HollandSMP
+commands: {}

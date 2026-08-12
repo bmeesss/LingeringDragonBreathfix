@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+}
+
+group = 'nl.hollandsmp'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = uri('https://repo.lax1dude.net/repository/releases/')
+    }
+    maven {
+        name = 'spigot-repo'
+        url = uri('https://hub.spigotmc.org/nexus/content/repositories/snapshots/')
+    }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
+    compileOnly 'net.lax1dude.eaglercraft.backend:api-bukkit:1.1.0'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation']
+}
+
+jar {
+    from { configurations.compileOnly.collect { it.isDirectory() ? it : zipTree(it) } } // do not embed, but allows running in IDE if desired
+    archiveBaseName = 'LingeringDragonBreathFix'
+}
