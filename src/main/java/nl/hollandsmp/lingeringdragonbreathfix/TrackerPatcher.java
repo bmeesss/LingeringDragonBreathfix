@@ -206,7 +206,7 @@ public class TrackerPatcher {
             try {
                 patchEntryIfNeeded(value, areaClass);
             } catch (Throwable t) {
-                plugin.getLogger().log(Level.FINE, "[HollandEaglerFix] failed to wrap new entry", t);
+                plugin.getLogger().log(Level.FINE, "[LingeringDragonBreathFix] failed to wrap new entry", t);
             }
         }
 
