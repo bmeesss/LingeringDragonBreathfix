@@ -104,7 +104,7 @@ public class EaglerPlayerDetector implements Listener {
                 return Boolean.TRUE.equals(res);
             }
         } catch (Throwable t) {
-            plugin.getLogger().warning("[HollandEaglerFix] Error calling EaglerXServer API: " + t.getMessage());
+            plugin.getLogger().warning("[LingeringDragonBreathFix] Error calling EaglerXServer API: " + t.getMessage());
         }
         return false;
     }

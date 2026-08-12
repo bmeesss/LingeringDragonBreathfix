@@ -53,7 +53,7 @@ public class TrackerPatcher {
             try {
                 for (World w : Bukkit.getWorlds()) patchWorld(w, areaClass);
             } catch (Throwable t) {
-                plugin.getLogger().log(Level.FINE, "[HollandEaglerFix] periodic patch scan failed", t);
+                plugin.getLogger().log(Level.FINE, "[LingeringDragonBreathFix] periodic patch scan failed", t);
             }
         }, 20L * 5, 20L * 30);
     }
@@ -67,7 +67,7 @@ public class TrackerPatcher {
                 f.setAccessible(true);
                 f.set(e.getKey(), s.originalSet);
             } catch (Throwable t) {
-                plugin.getLogger().log(Level.FINE, "[HollandEaglerFix] failed to restore entry set", t);
+                plugin.getLogger().log(Level.FINE, "[LingeringDragonBreathFix] failed to restore entry set", t);
             }
         }
         for (Map.Entry<Object, Object> e : patchedMaps.entrySet()) {
@@ -77,7 +77,7 @@ public class TrackerPatcher {
                 mapField.setAccessible(true);
                 // no reliable original stored globally; best-effort only
             } catch (Throwable t) {
-                plugin.getLogger().log(Level.FINE, "[HollandEaglerFix] failed to restore map", t);
+                plugin.getLogger().log(Level.FINE, "[LingeringDragonBreathFix] failed to restore map", t);
             }
         }
     }
@@ -132,7 +132,7 @@ public class TrackerPatcher {
             try {
                 patchEntryIfNeeded(entry, areaClass);
             } catch (Throwable t) {
-                plugin.getLogger().log(Level.FINER, "[HollandEaglerFix] failed to patch entry", t);
+                plugin.getLogger().log(Level.FINER, "[LingeringDragonBreathFix] failed to patch entry", t);
             }
         }
     }

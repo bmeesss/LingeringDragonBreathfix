@@ -5,7 +5,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
 
-class LegacyHollandEaglerFix extends JavaPlugin {
+final class LegacyHollandEaglerFix {
+    // Legacy placeholder - class retained for compatibility in repository only.
+    // The active plugin main class is nl.hollandsmp.lingeringdragonbreathfix.LingeringDragonBreathFix
+
 
     private EaglerPlayerDetector detector;
     private TrackerPatcher patcher;
